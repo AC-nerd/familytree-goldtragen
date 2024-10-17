@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>goldtragen thing </title>
     <link rel="stylesheet" href="styles.css">
-    <script src="familytree.js"></script> <!-- Ensure this file is included -->
+    <script src="familytree.js"></script> <!-- this is a test-->
     <style>
         /* Add your CSS styles here */
     
@@ -223,6 +225,8 @@ var family = new FamilyTree(document.getElementById("tree"), {
     search: false // Disable searching
 });
 
+
+
 function getRootOf(node) {
     while (node) {
         if (!family.getNode(node.mid)) {
@@ -384,4 +388,5 @@ document.getElementById('submit').onclick = () => {
 </script>
         
 </body>
+</html>
 </html>
