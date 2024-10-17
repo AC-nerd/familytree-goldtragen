@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=52.0">
+    <title>goldtragen thing </title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="familytree.js"></script> <!-- Ensure this file is included -->
+    <style>
+        /* Add your CSS styles here */
+    
+        svg .node .field_0 text {
+            font-family: Impact;
+            text-transform: uppercase;
+            fill: #1cce15 !important; /* Force text color */
+        }
+    
+        svg .node .field_1 text {
+            fill: #860f0f !important; /* Force secondary text color */
+        }
+    
+        svg.tommy .node.female > rect {
+            fill: #238baa;
+        }   
+    
+        svg.tommy .node.male > rect {
+            fill: #c93e07;
+        }
+    
+        html, body {
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+            height: 100%; /* Ensure full height */
+            overflow: hidden; /* Prevent scrolling */
+        }
+    
+        body {
+            color: #121212; /* Light text color */
+            font-family: Arial, sans-serif;
+        }
+    
+        #tree {
+            width: 100%; /* Set this to whatever width you like */
+            height: calc(100vh - 100px); /* Use viewport height for tree area */
+            overflow: auto; /* Ensure scroll if necessary */
+            background-color: #121212; /* Background color for the tree area */
+        }
+    
+        #member-details {
+            background-color: #1e1e1e; /* Slightly lighter dark for contrast */
+            padding: 20px;
+            border-radius: 5px;
+            position: fixed;
+            top: 10%;
+            left: 10%;
+            width: 300px;
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+    
+        .hidden {
+            display: none;
+        }
+    
+        button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #0056b3;
+        }
+    
+        input, textarea {
+            color: #000; /* Input text color */
+            padding: 5px;
+            margin-top: 5px;
+            width: 90%;
+        }
+    
+        textarea {
+            resize: none; /* Disable resizing */
+            height: 60px; /* Fixed height for textarea */
+        }
+
+    /* Styling for the small button */
+    #button {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        width: 40px; /* Increase width for better fit */
+        height: 40px; /* Increase height for better fit */
+        background-color: #007bff; /* Blue color */
+        border: none;
+        border-radius: 5px; /* Rounded corners */
+        cursor: pointer;
+        outline: none; /* Remove outline */
+        font-size: 24px; /* Increase emoji size */
+        display: flex; /* Use flexbox for centering */
+        align-items: center; /* Center vertically */
+        justify-content: center; /* Center horizontally */
+    }
+
+    /* Keep the existing styles for modal */
+    #modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: black; /* Black background */
+        color: white; /* White text */
+        border: 2px solid red; /* Border color */
+        padding: 20px;
+        z-index: 1000;
+        width: 300px; /* Optional: Set a fixed width for the modal */
+        border-radius: 8px; /* Optional: Rounded corners for the modal */
+    }
+
+    /* Styling for the overlay (if needed) */
+    #overlay {
+        display: none; /* No background overlay */
+    }
+
+</style>
+
+    
+</head>
+<body>
+    <h1></h1>
+    <div id="tree"></div> <!-- This is the div for the family tree -->
+    <div id="member-details" class="hidden">
+        <h2>Member Details</h2>
+        <label for="name-input">Name:</label>
+        <input id="name-input" type="text" readonly>
+        <label for="gender-input">Gender:</label>
+        <input id="gender-input" type="text" readonly>
+        <label for="relationship-input">Relationship Status:</label>
+        <input id="relationship-input" type="text" readonly>
+        <label for="note-input">Notes:</label>
+        <textarea id="note-input" readonly></textarea>
+        <button id="close-btn">Close</button>
+    </div>
+
+    <!-- Small Button to Open Menu -->
+    <button id="button">📬</button> <!-- Add the emoji inside the button -->
+<!-- Menu Modal -->
+<div id="overlay"></div>
+<div id="modal">
+    <label for="type">Select Option:</label>
+    <select id="type">
+        <option value="suggestion">Suggestion</option>
+        <option value="addition">Addition</option>
+    </select>
+    <div id="suggestion-fields" style="display:none;">
+        <input type="text" id="suggestion" placeholder="Enter suggestion" />
+    </div>
+    <div id="addition-fields" style="display:none;">
+        <input type="text" id="name" placeholder="Roleplay name" />
+        <input type="number" id="age" placeholder="Age" />
+        <input type="text" id="family" placeholder="Family (important)" />
+        <input type="text" id="note" placeholder="(optional) Personalized note" />
+    </div>
+    <button id="submit">Submit</button>
+</div>
+
+
+    <script>
+
+
+
+        
+        // Load family data from local storage or use default values if not available
+        const defaultFamilyData = [ 
+            { id: 1, name: "Otto en Olea", gender: "male", relationship: "First Of Kin", note: "also very special dude i think", seeablenote: "Biological Father", pids: [2] },
+            { id: 2, name: "Neo Aurelian", gender: "male", relationship: "First Of Kin", note: "very special dude i think", seeablenote: "Adoptive Parent", pids: [1] },
+            { id: 3, name: "Echo en Olea Aurelian", gender: "male", relationship: "Son of otto and adopted by neo", note: "person", seeablenote: "Adopted by Neo", mid: 1 },
+            { id: 5, name: "Ace en Olea Aurelian", gender: "male", relationship: "brother", note: "an person", mid: 3, seeablenote: "adopted by echo"},
+            { id: 6, name: "Paulus Goldtragen en Olea Aurelian", gender: "male", relationship: "friend", note: "Dm rio if you want something added here (if this is yours)", mid: 7, pid: 3, seeablenote:"Adopted by Echo" },
+            { id: 7, name: "Thoria Goldtragen", gender: "male", relationship: "uncle", note: "Dm rio if you want something added here (if this is yours)", seeablenote:"Biological father of paulus" },
+            { id: 8, name: "Endy Goldtragen Imre", gender: "female", relationship: "Brother of Paul", note: "Dm rio if you want something added here (if this is yours)", mid: 7, pids: [9], seeablenote: "Spouse of Rio" },
+            { id: 9, name: "Rio von Goldetragen-Imre van Lichtenfeld", gender: "female", relationship: "Spouse", note: "I made this website!", pids: [8], seeablenote: "Spouse of Endy", mid: 24, fid: 10 },
+            { id: 10, name: "Arthur Van Lichtenfeld", gender: "female", relationship: "Father of Rio", note: "yup its real", seeablenote: "Father of Rio", pids: [24] },
+            { id: 11, name: "Silonnz Goldtragen", gender: "male", relationship: "brother", note: "Dm rio if you want something added here (if this is yours)", fid: 6 },
+            { id: 12, name: "Nico Goldtragen Gutkrieger", gender: "female", relationship: "friend", note: "Dm rio if you want something added here (if this is yours)", fid: 6 },
+            { id: 13, name: "Adalfarus Friedrich Goldetragen Katza", gender: "male", relationship: "cousin", note: "Dm rio if you want something added here (if this is yours)", fid: 6 },
+            { id: 14, name: "Wyklor Paul Goldtragen", gender: "female", relationship: "sister", note: "Dm rio if you want something added here (if this is yours)", fid: 6, pids: [15] },
+            { id: 15, name: "Kleopatra Goldtragen", gender: "female", relationship: "sister", note: "Dm rio if you want something added here (if this is yours)", pids: [14] },
+            { id: 16, name: "Theo Goldetragen Katza the First", gender: "male", relationship: "brother", note: "Dm rio if you want something added here (if this is yours)", mid:15, fid:14 },
+            { id: 17, name: "Gütherz Goldtragen Katza", gender: "female", relationship: "friend", note: "Dm rio if you want something added here (if this is yours)", mid:16 },
+            { id: 18, name: "Philipp Goldtragen", gender: "female", relationship: "sister", note: "Dm rio if you want something added here (if this is yours)", fid:6, seeablenote: "Adopted" },
+            { id: 19, name: "Klumpi Goldtragen", gender: "male", relationship: "brother", note: "Dm rio if you want something added here (if this is yours)", fid:6, seeablenote: "Adopted" },
+            { id: 20, name: "Brawly Goldtragen", gender: "male", relationship: "cousin", note: "Dm rio if you want something added here (if this is yours)", fid:6, seeablenote: "Adopted" },
+            { id: 21, name: "Lukas Goldtragen", gender: "female", relationship: "friend", note: "Dm rio if you want something added here (if this is yours)", fid:6, seeablenote: "Adopted" },
+            { id: 22, name: "Cobbam Goldtragen", gender: "male", relationship: "nephew", note: "Dm rio if you want something added here (if this is yours)", seeablenote: "Adopted", fid:6 },
+            { id: 23, name: "Sirbread Goldtragen", gender: "female", relationship: "niece", note: "Dm rio if you want something added here (if this is yours)", seeablenote: "Adopted", fid:6 },
+            { id: 24, name: "Irina de Montclair van Lichtenfeld", gender: "female", relationship: "Mother", note: "its her yup", pids: [10], seeablenote: "Mother of Rio" },
+            { id: 25, name: "Erykh Ukhtop", gender: "male", relationship: "i dunno", note: "dm me to put something (rio)", seeablenote: "Cruzio" },
+            { id: 26, name: "Edy Goldtragen Imre", gender: "male", relationship: "i dunno", note: "dm me to put something (rio)", seeablenote: "Adopted", mid: 9, fid: 8 },
+
+        ];
+        
+        
+
+        
+        const familyData = JSON.parse(localStorage.getItem('familyData')) || defaultFamilyData;
+
+
+var family = new FamilyTree(document.getElementById("tree"), {
+    nodeBinding: {
+        field_0: "name",
+        field_1: "seeablenote",
+    },
+    nodes: familyData,
+    editForm: {
+        readOnly: true // Set to read-only mode
+    }
+});
+
+function getRootOf(node) {
+    while (node) {
+        if (!family.getNode(node.mid)) {
+            break;
+        }
+        node = family.getNode(node.mid);
+    }
+    return node;
+}
+
+
+        
+family.onNodeClick = function(node) {
+    // Show member details in input fields
+    console.log('Node clicked:', node);
+    document.getElementById("name-input").value = node.data.name;
+    document.getElementById("gender-input").value = node.data.gender;
+    document.getElementById("relationship-input").value = node.data.relationship || '';
+    document.getElementById("note-input").value = node.data.note || '';
+    document.getElementById("member-details").classList.remove("hidden");
+    
+    // Expand/collapse logic for family members
+    const childrenIds = family.getChildrenIds(node.id); // Get children IDs
+    
+    if (childrenIds.length > 0) {
+        const isCollapsed = node.isCollapsed; // Check if node is collapsed
+        if (isCollapsed) {
+            family.expandCollapse(node.id, [], childrenIds); // Expand node
+        } else {
+            family.expandCollapse(node.id, childrenIds, []); // Collapse node
+        }
+    }
+};
+
+
+
+        
+        // Close button functionality
+        document.getElementById("close-btn").onclick = function() {
+            document.getElementById("member-details").classList.add("hidden");
+        };
+        
+        // Custom templates for rendering
+        FamilyTree.templates.tommy_female.field_0 =
+    `<text data-width="230" data-text-overflow="multiline" style="font-size: 18px;" fill="#ffffff" x="125" y="75" text-anchor="middle" class="field_0">{val}</text>`;
+    
+FamilyTree.templates.tommy_female.field_1 =
+    `<text data-width="130" data-text-overflow="multiline" style="font-size: 14px;" fill="#ffffff" x="125" y="20" text-anchor="middle" class="field_1">{val}</text>`;
+
+FamilyTree.templates.tommy_male.field_0 =
+    `<text data-width="230" data-text-overflow="multiline" style="font-size: 18px;" fill="#ffffff" x="125" y="75" text-anchor="middle" class="field_0">{val}</text>`;
+    
+FamilyTree.templates.tommy_male.field_1 =
+    `<text data-width="130" data-text-overflow="multiline" style="font-size: 14px;" fill="#ffffff" x="125" y="20" text-anchor="middle" class="field_1">{val}</text>`;
+
+    
+    const button = document.getElementById('button');
+const modal = document.getElementById('modal');
+const overlay = document.getElementById('overlay');
+const typeSelect = document.getElementById('type');
+const suggestionFields = document.getElementById('suggestion-fields');
+const additionFields = document.getElementById('addition-fields');
+
+// Open the modal when the button is clicked
+button.onclick = () => {
+    modal.style.display = 'block';
+    // Show suggestion fields by default
+    suggestionFields.style.display = 'block';
+    additionFields.style.display = 'none'; // Hide addition fields initially
+};
+
+// Close the modal when clicking outside of it
+window.onclick = (event) => {
+    if (event.target !== modal && event.target !== button && !modal.contains(event.target)) {
+        modal.style.display = 'none';
+        // overlay.style.display = 'none'; // If you decide to add overlay in the future
+    }
+};
+
+// Show/hide fields based on selected type
+typeSelect.onchange = () => {
+    if (typeSelect.value === 'suggestion') {
+        suggestionFields.style.display = 'block';
+        additionFields.style.display = 'none';
+    } else {
+        suggestionFields.style.display = 'none';
+        additionFields.style.display = 'block';
+    }
+};
+
+// Handle submission
+document.getElementById('submit').onclick = () => {
+    let inputType = typeSelect.value;
+    let data;
+
+    // Prepare the data based on the selected type
+    if (inputType === 'suggestion') {
+        let suggestion = document.getElementById('suggestion').value;
+        data = {
+            embeds: [{
+                title: 'New Suggestion',
+                description: suggestion,
+                color: 0xff0000 // Red color
+            }]
+        };
+    } else {
+        let name = document.getElementById('name').value;
+        let age = document.getElementById('age').value;
+        let family = document.getElementById('family').value;
+        let note = document.getElementById('note').value;
+
+        // Create a formatted description with separators
+        data = {
+            embeds: [{
+                title: 'New Addition',
+                description: `**Name:** ${name}\n---\n**Age:** ${age}\n---\n**Family:** ${family}\n---\n**Note:** ${note}`,
+                color: 0xff0000 // Red color
+            }]
+        };
+    }
+
+    // Send the request to the Discord webhook
+    fetch('https://discord.com/api/webhooks/1296583454967730268/ZUSWGJgaFZ1Qkv8_R9j3kEFsir8elB6tTYV_zOwXf1phOmBQ7-Vf6Qi4xjp-GsdSRrHg', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json' // Set the content type
+        },
+        body: JSON.stringify(data) // Convert data to JSON string
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok'); // Check for network errors
+        }
+        return response.json(); // Parse response as JSON
+    })
+    .then(data => {
+        console.log('Success:', data); // Log the success message
+        modal.style.display = 'none'; // Close the modal after submission
+
+        // Clear the input fields after submission
+        document.getElementById('suggestion').value = '';
+        document.getElementById('name').value = '';
+        document.getElementById('age').value = '';
+        document.getElementById('family').value = '';
+        document.getElementById('note').value = '';
+    })
+    .catch((error) => {
+        console.error('Error:', error); // Log any errors that occur
+    });
+};
+
+</script>
+        
+</body>
+</html>
