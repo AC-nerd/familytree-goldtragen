@@ -151,10 +151,10 @@
 <!-- Menu Modal -->
 <div id="overlay"></div>
 <div id="modal">
-    <label for="type">Select Option:</label>
+    <label for="type">choose:</label>
     <select id="type">
         <option value="suggestion">Suggestion</option>
-        <option value="addition">Addition</option>
+        <option value="New member">Addition</option>
     </select>
     <div id="suggestion-fields" style="display:none;">
         <input type="text" id="suggestion" placeholder="Enter suggestion" />
@@ -335,8 +335,8 @@ document.getElementById('submit').onclick = () => {
         // Create a formatted description with separators
         data = {
             embeds: [{
-                title: 'New Addition',
-                description: `**Name:** ${name}\n---\n**Age:** ${age}\n---\n**Family:** ${family}\n---\n**Note:** ${note}`,
+                title: 'New Member',
+                description: `**Name:** ${name}\n---\n**Age:** ${age}\n---\n**Family members:** ${family}\n---\n**Note:** ${note}`,
                 color: 0xff0000 // Red color
             }]
         };
