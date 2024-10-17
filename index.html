@@ -218,7 +218,8 @@ var family = new FamilyTree(document.getElementById("tree"), {
     nodes: familyData,
     editForm: {
         readOnly: true // Set to read-only mode
-    }
+    },
+    search: false // Disable searching
 });
 
 function getRootOf(node) {
