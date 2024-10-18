@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>goldtragen thing </title>
+    <title>Goldtragen Family Tree </title>
     <link rel="stylesheet" href="styles.css">
     <script src="familytree.js"></script> <!-- this is a test-->
     <style>
@@ -224,7 +224,7 @@ var family = new FamilyTree(document.getElementById("tree"), {
     search: false // Disable searching
 });
 
-
+family.moveNode(25, 11); // Move Erykh Ukhtop (id 25) under Silonnz Goldtragen (id 11), for example
 
 function getRootOf(node) {
     while (node) {
